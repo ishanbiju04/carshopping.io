@@ -9,7 +9,14 @@ def get_providers():
     providers = []
     if settings.enable_mock_provider:
         providers.append(MockProvider())
-    # TODO: add real providers when API access is configured
+    # Real providers (optional)
+    try:
+        if settings.enable_serpapi_provider and settings.serpapi_key:
+            from ..providers.serpapi import SerpApiProvider  # lazy import
+            providers.append(SerpApiProvider(api_key=settings.serpapi_key))
+    except Exception:
+        # If provider import/init fails, skip it silently
+        pass
     return providers
 
 

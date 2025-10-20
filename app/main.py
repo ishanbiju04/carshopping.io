@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from typing import List
+import os
 
 from .config import settings
 from .models import SearchRequest, SearchResponse, ListingWithPlacement
@@ -59,9 +60,21 @@ async def search(req: SearchRequest) -> SearchResponse:
     )
 
 
-# Serve built frontend if available (frontend/dist)
+# Serve built frontend if available (frontend/dist). Try a few common locations.
+def _try_mount_frontend() -> None:
+    candidates = [
+        os.path.join(os.path.dirname(__file__), "..", "frontend", "dist"),  # repo root sibling
+        os.path.join(os.getcwd(), "frontend", "dist"),  # CWD/frontend/dist
+    ]
+    for path in candidates:
+        abs_path = os.path.abspath(path)
+        if os.path.isdir(abs_path):
+            app.mount("/", StaticFiles(directory=abs_path, html=True), name="static")
+            return
+
+
 try:
-    app.mount("/", StaticFiles(directory="../frontend/dist", html=True), name="static")
+    _try_mount_frontend()
 except Exception:
     # Frontend not built yet; ignore
     pass

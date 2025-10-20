@@ -17,6 +17,7 @@ class Settings(BaseSettings):
 
     # Provider toggles/keys
     enable_mock_provider: bool = True
+    enable_serpapi_provider: bool = False
 
     # Optional: third-party provider keys (not required for mock)
     serpapi_key: str | None = None
